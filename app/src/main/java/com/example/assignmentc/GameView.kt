@@ -59,20 +59,20 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
     }
 
-    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float, objectRadius: Float): Boolean {
+    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float): Boolean {
         val distanceX = playerX - objectX
         val distanceY = playerY - objectY
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.radius + objectRadius
+        return distance < player.playerCollsionRadius + obstacle.obstacleCollsionRadius
     }
     suspend fun gameLoop(): Runnable? {
         while (true) {
             // Perform game logic and rendering here
             updateGame()
 
-            Log.d("MESSAGE", "TEST")
+            //Log.d("MESSAGE", "TEST")
 
             delay(16) // Delay for approximately 16 milliseconds (60 frames per second)
             invalidate() // Request a redraw of the view
@@ -117,8 +117,18 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     fun updateGame(){
         // Game logic
         var oldY = obstacle.posY
-        var newY = oldY+1
+        var newY = oldY+10
         obstacle.setPos(startPositionX,newY)
+
+
+        if(checkCollision(middleLaneX!!.toFloat(), startPositionY, obstacle.posX, obstacle.posY))
+        {
+            Log.d("Collision", "true")
+        }
+        else
+        {
+            //Log.d("Collision", "false")
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

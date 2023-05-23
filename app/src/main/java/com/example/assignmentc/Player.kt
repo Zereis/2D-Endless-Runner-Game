@@ -16,7 +16,7 @@ class Player(private val context: Context){
     var paint: Paint? = null
     var circleX: Float = 0.0f
     var circleY: Float = 0.0f
-    var radius: Float = 50f
+    var playerCollsionRadius: Float = 50f
 
 
     init {
