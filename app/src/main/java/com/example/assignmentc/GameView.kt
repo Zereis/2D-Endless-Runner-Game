@@ -26,8 +26,8 @@ class GameView(context: Context) : View(context) {
     private var rightLaneX: Int? = 3
 
     // Y spawn position for objects
-    var obstacleRow: Int? = null
-    var playerRow: Int? = null
+    private var obstacleRow: Int? = null
+    private var playerRow: Int? = null
 
     // Other game-related variables
 
@@ -35,9 +35,12 @@ class GameView(context: Context) : View(context) {
         player = Player(context)
         obstacle = Obstacle(context)
 
+        //Set up lanes, rows and start position for player and obstacles
         setLanes()
         setRows()
         setStartPos()
+
+
     }
 
     override fun draw(canvas: Canvas?)
@@ -93,11 +96,13 @@ class GameView(context: Context) : View(context) {
         rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
     }
 
+    //Set the players and the obstacles rows (y) depending on screen size
     private fun setRows(){
         playerRow = getScreenHeight()-300
         obstacleRow = 0 //This should be something like -100 to spawn above the screen and then fall down
     }
 
+    //Update start position of the player
     private fun setStartPos(){
         startPositionX = middleLaneX!!.toFloat()
         startPositionY = playerRow!!.toFloat()
