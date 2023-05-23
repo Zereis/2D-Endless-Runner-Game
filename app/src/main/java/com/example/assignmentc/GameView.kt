@@ -18,6 +18,8 @@ class GameView(context: Context) : View(context) {
 
     // Other game-related variables
 
+    // KEVIN COMMENT
+
     init {
 
         paint = Paint()
