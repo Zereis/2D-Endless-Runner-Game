@@ -1,13 +1,13 @@
 package com.example.assignmentc
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.MotionEvent
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
+
 
 class GameView(context: Context) : View(context) {
 
@@ -16,9 +16,15 @@ class GameView(context: Context) : View(context) {
     var circleX: Float = 0.0f
     var circleY: Float = 0.0f
 
-    // Other game-related variables
+    // Lane X coordinates for positioning.
+    var leftLaneX: Int? = null
+    var middleLaneX: Int? = null
+    var rightLaneX: Int? = null
 
-    // KEVIN COMMENT
+    // Y spawn position for objects
+    var spawnY: Int? = null
+
+    // Other game-related variables
 
     init {
 
@@ -28,6 +34,8 @@ class GameView(context: Context) : View(context) {
         paint!!.color = Color.YELLOW
         circleX = 100.0f
         circleY = 100.0f
+
+
 
     }
 
@@ -45,6 +53,20 @@ class GameView(context: Context) : View(context) {
         circleY = event!!.y
         invalidate()
         return true
+    }
+
+    fun setUpLanes(){
+        middleLaneX = getScreenWidth()/4
+        leftLaneX = getScreenWidth()/4
+        rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
+    }
+
+    fun getScreenWidth(): Int {
+        return Resources.getSystem().displayMetrics.widthPixels
+    }
+
+    fun getScreenHeight(): Int {
+        return Resources.getSystem().displayMetrics.heightPixels
     }
 }
 
