@@ -14,7 +14,8 @@ class GameView(context: Context) : View(context) {
     private var player: Player
     var startPositionX: Float = 550f
     var startPositionY: Float = 1800f
-
+    private val SWIPE_THRESHOLD = 100
+    var test: Boolean = false
     // Other game-related variables
 
     // KEVIN COMMENT
@@ -29,14 +30,39 @@ class GameView(context: Context) : View(context) {
     {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
-        canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
+
+
+        if(test)
+        {
+            canvas?.drawCircle(200f,startPositionY, 50f, player.paint!!)
+        }
+        else
+        {
+            canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        // Handle touch events and update player controls
-
-        player.circleX = event.x
-        player.circleY = event.y
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Record the initial touch position
+                player.circleX = event.x
+                true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val deltaX = event.x - player.circleX
+                if (deltaX < SWIPE_THRESHOLD) {
+                    // Swiped left
+                    test = true
+                }
+                else if (deltaX > SWIPE_THRESHOLD) {
+                    // Swiped left
+                    test = true
+                }
+                true
+            }
+            else -> false
+        }
         invalidate()
         return true
     }
