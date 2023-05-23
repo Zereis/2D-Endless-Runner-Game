@@ -5,23 +5,27 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class GameView(context: Context) : View(context) {
-
     private var player: Player
+    private var obstacle: Obstacle
     private var startPositionX: Float = 550f
     private var startPositionY: Float = 1800f
 
     private var initialTouchX = 0f // Initial touch position X-coordinate
     private var isLaneSwitching = false // Flag to track lane switch state
 
-    private var isRunning = false
-
-    // Define the desired frame rate (e.g., 60fps)
-    private val frameRate = 16 // 1000 milliseconds / 60 frames ≈ 16 milliseconds per frame
+    private val SWIPE_THRESHOLD = 100
 
     private var leftLane: Int? = 1
     private var middleLane: Int? = 2
@@ -38,24 +42,39 @@ class GameView(context: Context) : View(context) {
     private var obstacleRow: Int? = null
     private var playerRow: Int? = null
 
+    private var gameStarted: Boolean = false
+
+    private val frameRate = 16 // 1000 milliseconds / 60 frames ≈ 16 milliseconds per frame
+
     // Other game-related variables
 
     init {
         player = Player(context)
+        obstacle = Obstacle(context)
 
         //Set up lanes, rows and start position for player and obstacles
         setLanes()
         setRows()
         setStartPos()
 
+        obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
+
         startGameLoop()
     }
+
     private val gameLoopRunnable = object : Runnable {
         override fun run() {
-            if (isRunning) {
+            if (gameStarted) {
                 // Game update logic
                 updateGame()
+                invalidate()
 
+                /*
+                Log.d("Y", obstacle.posY.toString())
+                Log.d("X", obstacle.posX.toString())
+
+                 */
+                Log.d("MESSAGE", "TESTESTESTEST.................ESETESETSE")
 
                 // Schedule the next iteration of the game loop
                 postDelayed(this, frameRate.toLong())
@@ -65,45 +84,22 @@ class GameView(context: Context) : View(context) {
 
     // Method to start the game loop
     fun startGameLoop() {
-        isRunning = true
+        gameStarted = true
         post(gameLoopRunnable)
     }
 
     // Method to stop the game loop
     fun stopGameLoop() {
-        isRunning = false
+        gameStarted = false
         removeCallbacks(gameLoopRunnable)
     }
 
-    private fun updateGame() {
-        // Update player position, velocity, or any other properties
-        //updatePlayer()
-
-        // Update game objects, such as obstacles, enemies, or power-ups
-        //updateGameObjects()
-
-        // Perform collision detection and handle collisions
-        //handleCollisions()
-
-        // Check game over conditions and update game state accordingly
-        //checkGameOver()
-
-        // Perform any other necessary game logic or calculations
-        // ...
-
-        // Update any animations, timers, or counters
-        //updateAnimations()
-
-        // Update game score or other game-related variables
-        //updateScore()
-
-        // Apply any game state changes or modifications
-        // ...
-    }
     override fun draw(canvas: Canvas?)
     {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
+
+        canvas?.drawCircle(obstacle.posX, obstacle.posY, 50f, obstacle.paint!!)
 
         if(playerCurrentLane == leftLane)
         {
@@ -117,17 +113,16 @@ class GameView(context: Context) : View(context) {
         {
             canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
-
+        invalidate()
     }
-    // check if the player collids with the object
-    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float, objectRadius: Float): Boolean {
-        val distanceX = playerX - objectX
-        val distanceY = playerY - objectY
-        val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
-        // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.radius + objectRadius
+    fun updateGame(){
+        // Game logic
+        var oldY = obstacle.posY
+        var newY = oldY+1
+        obstacle.setPos(startPositionX,newY)
     }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -150,7 +145,7 @@ class GameView(context: Context) : View(context) {
                     // Switch lanes based on swipe direction
                     when (swipeDirection) {
                         "Right" -> {
-                            if (playerCurrentLane < 3 && playerCurrentLane != rightLane) {
+                            if (playerCurrentLane < 3) {
                                 // Switch to the next lane (increase player's position)
                                 playerCurrentLane++
                                 // Update player's position gradually for smooth movement
@@ -158,7 +153,7 @@ class GameView(context: Context) : View(context) {
                             }
                         }
                         "Left" -> {
-                            if (playerCurrentLane > 1 && playerCurrentLane != leftLane) {
+                            if (playerCurrentLane > 1) {
                                 // Switch to the previous lane (decrease player's position)
                                 playerCurrentLane--
                                 // Update player's position gradually for smooth movement

@@ -16,11 +16,10 @@ class Obstacle(private val context: Context) {
     var posX: Float = 0.0f
     var posY: Float = 0.0f
 
-    /*
     var position: PointF =
         PointF(0f, 0f)
+
     var speed: PointF = PointF(0f, 0f)
-    */
 
     init {
 
@@ -28,8 +27,10 @@ class Obstacle(private val context: Context) {
         paint!!.isFilterBitmap = true
         paint!!.isAntiAlias = true
         paint!!.color = Color.BLACK
-        posX = 100.0f
-        posY = 100.0f
+    }
 
+    fun setPos(X: Float, Y: Float){
+        posX = X
+        posY = Y
     }
 }
