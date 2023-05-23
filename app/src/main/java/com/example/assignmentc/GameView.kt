@@ -5,13 +5,20 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class GameView(context: Context) : View(context) {
-
     private var player: Player
+    private var obstacle: Obstacle
     private var startPositionX: Float = 550f
     private var startPositionY: Float = 1800f
 
@@ -35,21 +42,64 @@ class GameView(context: Context) : View(context) {
     private var obstacleRow: Int? = null
     private var playerRow: Int? = null
 
+    private var gameStarted: Boolean = false
+
+    private val frameRate = 16 // 1000 milliseconds / 60 frames ≈ 16 milliseconds per frame
+
     // Other game-related variables
 
     init {
         player = Player(context)
+        obstacle = Obstacle(context)
 
         //Set up lanes, rows and start position for player and obstacles
         setLanes()
         setRows()
         setStartPos()
+
+        obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
+
+        startGameLoop()
+    }
+
+    private val gameLoopRunnable = object : Runnable {
+        override fun run() {
+            if (gameStarted) {
+                // Game update logic
+                updateGame()
+                invalidate()
+
+                /*
+                Log.d("Y", obstacle.posY.toString())
+                Log.d("X", obstacle.posX.toString())
+
+                 */
+                Log.d("MESSAGE", "TESTESTESTEST.................ESETESETSE")
+
+                // Schedule the next iteration of the game loop
+                postDelayed(this, frameRate.toLong())
+            }
+        }
+    }
+
+    // Method to start the game loop
+    fun startGameLoop() {
+        gameStarted = true
+        post(gameLoopRunnable)
+    }
+
+    // Method to stop the game loop
+    fun stopGameLoop() {
+        gameStarted = false
+        removeCallbacks(gameLoopRunnable)
     }
 
     override fun draw(canvas: Canvas?)
     {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
+
+        canvas?.drawCircle(obstacle.posX, obstacle.posY, 50f, obstacle.paint!!)
 
         if(playerCurrentLane == leftLane)
         {
@@ -63,7 +113,14 @@ class GameView(context: Context) : View(context) {
         {
             canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
+        invalidate()
+    }
 
+    fun updateGame(){
+        // Game logic
+        var oldY = obstacle.posY
+        var newY = oldY+1
+        obstacle.setPos(startPositionX,newY)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
