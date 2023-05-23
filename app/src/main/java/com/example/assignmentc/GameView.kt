@@ -53,15 +53,15 @@ class GameView(context: Context) : View(context) {
 
         if(playerCurrentLane == leftLane)
         {
-            canvas?.drawCircle(200f,startPositionY, 50f, player.paint!!)
+            canvas?.drawCircle(leftLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
         else if(playerCurrentLane == middleLane)
         {
-            canvas?.drawCircle(550f,startPositionY, 50f, player.paint!!)
+            canvas?.drawCircle(middleLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
         else if(playerCurrentLane == rightLane)
         {
-            canvas?.drawCircle(800f,startPositionY, 50f, player.paint!!)
+            canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
 
     }
