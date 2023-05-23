@@ -19,7 +19,7 @@ class GameView(context: Context) : View(context) {
     private var startPositionY: Float = 1800f
 
     private val SWIPE_THRESHOLD = 100
-    var test: Boolean = true
+    var test: Boolean = false
 
 
     // Lane X coordinates for positioning.
@@ -30,7 +30,6 @@ class GameView(context: Context) : View(context) {
     // Y spawn position for objects
     private var spawnY: Int? = null
 
-
     // Other game-related variables
 
     init {
@@ -40,6 +39,7 @@ class GameView(context: Context) : View(context) {
         setUpLanes()
 
         startPositionX = middleLaneX!!.toFloat()
+        spawnY = 0
     }
 
     override fun draw(canvas: Canvas?)
@@ -47,15 +47,19 @@ class GameView(context: Context) : View(context) {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
-
         if(test)
         {
+            //Player
             canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
+            //Obstacle
             canvas?.drawCircle(startPositionX,100f,50f, obstacle.paint!!)
         }
         else
         {
+            //Player
             canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
+            //Obstacle
+            canvas?.drawCircle(startPositionX,spawnY!!.toFloat(),50f, obstacle.paint!!)
         }
     }
 
@@ -85,17 +89,17 @@ class GameView(context: Context) : View(context) {
     }
 
     //Sets the lanes X position depending on screen size.
-    fun setUpLanes(){
+    private fun setUpLanes(){
         middleLaneX = getScreenWidth()/2
         leftLaneX = getScreenWidth()/4
         rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
     }
 
-    fun getScreenWidth(): Int {
+    private fun getScreenWidth(): Int {
         return Resources.getSystem().displayMetrics.widthPixels
     }
 
-    fun getScreenHeight(): Int {
+    private fun getScreenHeight(): Int {
         return Resources.getSystem().displayMetrics.heightPixels
     }
 }
