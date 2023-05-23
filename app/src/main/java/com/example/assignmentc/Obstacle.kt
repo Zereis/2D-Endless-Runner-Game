@@ -23,11 +23,13 @@ class Obstacle(private val context: Context) {
     */
 
     init {
+
         paint = Paint()
         paint!!.isFilterBitmap = true
         paint!!.isAntiAlias = true
         paint!!.color = Color.BLACK
         posX = 100.0f
         posY = 100.0f
+
     }
 }
