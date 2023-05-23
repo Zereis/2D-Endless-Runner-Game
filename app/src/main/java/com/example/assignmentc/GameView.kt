@@ -11,23 +11,17 @@ import android.view.View
 
 class GameView(context: Context) : View(context) {
 
-
-    var paint: Paint? = null
-    var circleX: Float = 0.0f
-    var circleY: Float = 0.0f
+    private var player: Player
+    var startPositionX: Float = 550f
+    var startPositionY: Float = 1800f
 
     // Other game-related variables
 
     // KEVIN COMMENT
 
     init {
+    player = Player(context)
 
-        paint = Paint()
-        paint!!.isFilterBitmap = true
-        paint!!.isAntiAlias = true
-        paint!!.color = Color.YELLOW
-        circleX = 100.0f
-        circleY = 100.0f
 
     }
 
@@ -35,14 +29,14 @@ class GameView(context: Context) : View(context) {
     {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
-        canvas?.drawCircle(circleX,circleY, 50f, paint!!)
+        canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // Handle touch events and update player controls
 
-        circleX = event!!.x
-        circleY = event!!.y
+        player.circleX = event.x
+        player.circleY = event.y
         invalidate()
         return true
     }
