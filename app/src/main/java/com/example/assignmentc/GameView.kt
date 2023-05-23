@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
 
@@ -26,18 +25,16 @@ class GameView(context: Context) : View(context) {
 
     // Y spawn position for objects
     var spawnY: Int? = null
-
+    var playerY: Int? = null
 
     // Other game-related variables
 
     init {
         player = Player(context)
 
-        setUpLanes()
-        startPositionX = rightLaneX!!.toFloat()
-
-
-
+        setLanes()
+        setRows()
+        setStartPos()
     }
 
     override fun draw(canvas: Canvas?)
@@ -82,17 +79,27 @@ class GameView(context: Context) : View(context) {
     }
 
     //Sets the lanes X position depending on screen size.
-    fun setUpLanes(){
+    private fun setLanes(){
         middleLaneX = getScreenWidth()/2
         leftLaneX = getScreenWidth()/4
         rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
     }
 
-    fun getScreenWidth(): Int {
+    private fun setRows(){
+        playerY = getScreenHeight()-300
+        spawnY = 0 //This should be something like -100 to spawn above the screen and then fall down
+    }
+
+    private fun setStartPos(){
+        startPositionX = rightLaneX!!.toFloat()
+        startPositionY = playerY!!.toFloat()
+    }
+
+    private fun getScreenWidth(): Int {
         return Resources.getSystem().displayMetrics.widthPixels
     }
 
-    fun getScreenHeight(): Int {
+    private fun getScreenHeight(): Int {
         return Resources.getSystem().displayMetrics.heightPixels
     }
 }
