@@ -26,8 +26,10 @@ class GameView(context: Context) : View(context) {
     // Other game-related variables
 
     init {
-    player = Player(context)
+        player = Player(context)
 
+        setUpLanes()
+        startPositionX = rightLaneX!!.toFloat()
 
 
 
@@ -49,6 +51,7 @@ class GameView(context: Context) : View(context) {
         return true
     }
 
+    //Sets the lanes X position depending on screen size.
     fun setUpLanes(){
         middleLaneX = getScreenWidth()/2
         leftLaneX = getScreenWidth()/4
