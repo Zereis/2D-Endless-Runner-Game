@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
 
@@ -21,14 +20,14 @@ class GameView(context: Context) : View(context) {
     private val SWIPE_THRESHOLD = 100
     var test: Boolean = false
 
-
     // Lane X coordinates for positioning.
     private var leftLaneX: Int? = 1
     private var middleLaneX: Int? = 2
     private var rightLaneX: Int? = 3
 
     // Y spawn position for objects
-    private var spawnY: Int? = null
+    var obstacleRow: Int? = null
+    var playerRow: Int? = null
 
     // Other game-related variables
 
@@ -36,10 +35,9 @@ class GameView(context: Context) : View(context) {
         player = Player(context)
         obstacle = Obstacle(context)
 
-        setUpLanes()
-
-        startPositionX = middleLaneX!!.toFloat()
-        spawnY = 0
+        setLanes()
+        setRows()
+        setStartPos()
     }
 
     override fun draw(canvas: Canvas?)
@@ -59,7 +57,7 @@ class GameView(context: Context) : View(context) {
             //Player
             canvas?.drawCircle(startPositionX,startPositionY, 50f, player.paint!!)
             //Obstacle
-            canvas?.drawCircle(startPositionX,spawnY!!.toFloat(),50f, obstacle.paint!!)
+            canvas?.drawCircle(startPositionX,obstacleRow!!.toFloat(),50f, obstacle.paint!!)
         }
     }
 
@@ -89,10 +87,20 @@ class GameView(context: Context) : View(context) {
     }
 
     //Sets the lanes X position depending on screen size.
-    private fun setUpLanes(){
+    private fun setLanes(){
         middleLaneX = getScreenWidth()/2
         leftLaneX = getScreenWidth()/4
         rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
+    }
+
+    private fun setRows(){
+        playerRow = getScreenHeight()-300
+        obstacleRow = 0 //This should be something like -100 to spawn above the screen and then fall down
+    }
+
+    private fun setStartPos(){
+        startPositionX = middleLaneX!!.toFloat()
+        startPositionY = playerRow!!.toFloat()
     }
 
     private fun getScreenWidth(): Int {
