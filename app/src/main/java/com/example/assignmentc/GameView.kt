@@ -1,27 +1,41 @@
 package com.example.assignmentc
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.MotionEvent
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
+
 
 class GameView(context: Context) : View(context) {
 
     private var player: Player
     var startPositionX: Float = 550f
     var startPositionY: Float = 1800f
+
     private val SWIPE_THRESHOLD = 100
     var test: Boolean = false
+
+
+    // Lane X coordinates for positioning.
+    var leftLaneX: Int? = 1
+    var middleLaneX: Int? = 2
+    var rightLaneX: Int? = 3
+
+    // Y spawn position for objects
+    var spawnY: Int? = null
+
+
     // Other game-related variables
 
-    // KEVIN COMMENT
-
     init {
-    player = Player(context)
+        player = Player(context)
+
+        setUpLanes()
+        startPositionX = rightLaneX!!.toFloat()
+
 
 
     }
@@ -65,6 +79,21 @@ class GameView(context: Context) : View(context) {
         }
         invalidate()
         return true
+    }
+
+    //Sets the lanes X position depending on screen size.
+    fun setUpLanes(){
+        middleLaneX = getScreenWidth()/2
+        leftLaneX = getScreenWidth()/4
+        rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
+    }
+
+    fun getScreenWidth(): Int {
+        return Resources.getSystem().displayMetrics.widthPixels
+    }
+
+    fun getScreenHeight(): Int {
+        return Resources.getSystem().displayMetrics.heightPixels
     }
 }
 
