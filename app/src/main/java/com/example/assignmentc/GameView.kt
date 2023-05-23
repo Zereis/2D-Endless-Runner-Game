@@ -50,7 +50,7 @@ class GameView(context: Context) : View(context) {
     }
 
     fun setUpLanes(){
-        middleLaneX = getScreenWidth()/4
+        middleLaneX = getScreenWidth()/2
         leftLaneX = getScreenWidth()/4
         rightLaneX = getScreenWidth()/2 + getScreenWidth()/4
     }
