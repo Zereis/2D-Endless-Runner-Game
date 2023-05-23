@@ -59,6 +59,14 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
     }
 
+    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float, objectRadius: Float): Boolean {
+        val distanceX = playerX - objectX
+        val distanceY = playerY - objectY
+        val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
+
+        // Check if the distance between the player and object is less than the sum of their radii
+        return distance < player.radius + objectRadius
+    }
     suspend fun gameLoop(): Runnable? {
         while (true) {
             // Perform game logic and rendering here
