@@ -10,13 +10,14 @@ import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-
-class GameView(context: Context) : View(context) {
+class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
     private var obstacle: Obstacle
     private var startPositionX: Float = 550f
@@ -42,9 +43,7 @@ class GameView(context: Context) : View(context) {
     private var obstacleRow: Int? = null
     private var playerRow: Int? = null
 
-    private var gameStarted: Boolean = false
-
-    private val frameRate = 16 // 1000 milliseconds / 60 frames ≈ 16 milliseconds per frame
+    var gameLoopJob: Job? = null
 
     // Other game-related variables
 
@@ -58,40 +57,32 @@ class GameView(context: Context) : View(context) {
         setStartPos()
 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
-
-        startGameLoop()
     }
 
-    private val gameLoopRunnable = object : Runnable {
-        override fun run() {
-            if (gameStarted) {
-                // Game update logic
-                updateGame()
-                invalidate()
+    suspend fun gameLoop(): Runnable? {
+        while (true) {
+            // Perform game logic and rendering here
+            updateGame()
 
-                /*
-                Log.d("Y", obstacle.posY.toString())
-                Log.d("X", obstacle.posX.toString())
+            Log.d("MESSAGE", "TEST")
 
-                 */
-                Log.d("MESSAGE", "TESTESTESTEST.................ESETESETSE")
-
-                // Schedule the next iteration of the game loop
-                postDelayed(this, frameRate.toLong())
-            }
+            delay(16) // Delay for approximately 16 milliseconds (60 frames per second)
+            invalidate() // Request a redraw of the view
         }
     }
 
-    // Method to start the game loop
-    fun startGameLoop() {
-        gameStarted = true
-        post(gameLoopRunnable)
-    }
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
 
-    // Method to stop the game loop
-    fun stopGameLoop() {
-        gameStarted = false
-        removeCallbacks(gameLoopRunnable)
+        gameLoopJob = launch {
+            gameLoop()
+        }
+    }
+    
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        gameLoopJob?.cancel()
     }
 
     override fun draw(canvas: Canvas?)
@@ -113,7 +104,6 @@ class GameView(context: Context) : View(context) {
         {
             canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
-        invalidate()
     }
 
     fun updateGame(){
