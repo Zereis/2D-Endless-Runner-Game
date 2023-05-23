@@ -4,18 +4,14 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
@@ -57,6 +53,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setStartPos()
 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
+        player.setPos(startPositionX, startPositionY)
     }
 
     private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float): Boolean {
@@ -98,8 +95,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
-        canvas?.drawCircle(obstacle.posX, obstacle.posY, 50f, obstacle.paint!!)
+        canvas?.drawCircle(obstacle.posX, obstacle.posY, obstacle.obstacleCollsionRadius, obstacle.paint!!)
 
+        canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
+
+        /*
         if(playerCurrentLane == leftLane)
         {
             canvas?.drawCircle(leftLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
@@ -112,6 +112,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         {
             canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
         }
+        */
     }
 
     fun updateGame(){
@@ -121,13 +122,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         obstacle.setPos(startPositionX,newY)
 
 
-        if(checkCollision(middleLaneX!!.toFloat(), startPositionY, obstacle.posX, obstacle.posY))
+        if(checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY))
         {
             Log.d("Collision", "true")
-        }
-        else
-        {
-            //Log.d("Collision", "false")
         }
     }
 
@@ -157,6 +154,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                                 // Switch to the next lane (increase player's position)
                                 playerCurrentLane++
                                 // Update player's position gradually for smooth movement
+
+                                UpdatePlayerPos()
                                 isLaneSwitching = true
                             }
                         }
@@ -165,10 +164,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                                 // Switch to the previous lane (decrease player's position)
                                 playerCurrentLane--
                                 // Update player's position gradually for smooth movement
+
+                                UpdatePlayerPos()
                                 isLaneSwitching = true
+
+
                             }
                         }
                     }
+
+
 
                     // Reset initial touch position
                     initialTouchX = currentTouchX
@@ -181,6 +186,21 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         }
         invalidate()
         return true
+    }
+
+    private fun UpdatePlayerPos(){
+        if(playerCurrentLane == 1){
+            player.setPos(leftLaneX!!.toFloat(), startPositionY)
+        }
+        else if(playerCurrentLane == 2){
+            player.setPos(middleLaneX!!.toFloat(), startPositionY)
+        }
+        else if(playerCurrentLane == 3){
+            player.setPos(rightLaneX!!.toFloat(), startPositionY)
+        }
+
+        Log.d("Player Y Pos", player.posY.toString())
+        Log.d("Player X Pos", player.posX.toString())
     }
 
     //Sets the lanes X position depending on screen size.
