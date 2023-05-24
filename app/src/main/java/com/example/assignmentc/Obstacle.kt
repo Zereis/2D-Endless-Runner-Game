@@ -15,12 +15,9 @@ class Obstacle(private val context: Context) {
     var paint: Paint? = null
     var posX: Float = 0.0f
     var posY: Float = 0.0f
+    var speed: Int = 10
 
     var obstacleCollsionRadius: Float = 50f
-    var position: PointF =
-        PointF(0f, 0f)
-
-    var speed: PointF = PointF(0f, 0f)
 
     init {
 

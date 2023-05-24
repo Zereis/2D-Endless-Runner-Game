@@ -24,7 +24,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var initialTouchX = 0f // Initial touch position X-coordinate
     private var isLaneSwitching = false // Flag to track lane switch state
 
-    private val INTERVAL = 5000L // 5 seconds
+    private val INTERVAL = 2000L // 2 seconds
 
     private val SWIPE_THRESHOLD = 100
 
@@ -33,6 +33,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var rightLane: Int? = 3
 
     private var playerCurrentLane = 2
+
+    // Mutable list of objects
+    private val obstacleList = mutableListOf<Obstacle>()
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -61,19 +64,23 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
         player.setPos(startPositionX, startPositionY)
+        startTimer()
     }
     fun startTimer() {
         object : CountDownTimer(INTERVAL, INTERVAL) {
             override fun onTick(millisUntilFinished: Long) {
                 // Code to be executed every interval (5 seconds in this case)
                 // Replace this with your desired code
-                println("Timer tick")
+
+                //println("Timer tick")
             }
 
             override fun onFinish() {
                 // Code to be executed after the interval is over
                 // Replace this with your desired code
                 println("Timer finished")
+
+                spawnObstacle()
 
                 // Start the timer again for the next interval
                 startTimer()
@@ -124,7 +131,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
-        canvas?.drawCircle(obstacle.posX, obstacle.posY, obstacle.obstacleCollsionRadius, obstacle.paint!!)
+        obstacleList.forEach{
+            canvas?.drawCircle(it.posX, it.posY, it.obstacleCollsionRadius, it.paint!!)
+        }
+
 
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
@@ -146,15 +156,33 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     fun updateGame(){
         // Game logic
-        var oldY = obstacle.posY
-        var newY = oldY+10
-        obstacle.setPos(startPositionX,newY)
 
+
+        obstacleList.forEach {
+            var oldY = it.posY
+            var newY = oldY+it.speed
+            it.setPos(it.posX,newY)
+        }
 
         if(checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY))
         {
             Log.d("Collision", "true")
         }
+    }
+
+    fun spawnObstacle(){
+        obstacle = Obstacle(context)
+        obstacle.posY = obstacleRow!!.toFloat()
+        var lane: Int = generateRandomNumber()
+        if(lane == 1)
+            obstacle.posX = leftLaneX!!.toFloat()
+        else if(lane == 2){
+            obstacle.posX = middleLaneX!!.toFloat()
+        }
+        else if(lane == 3){
+            obstacle.posX = rightLaneX!!.toFloat()
+        }
+        obstacleList.add(obstacle)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
