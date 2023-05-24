@@ -34,7 +34,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private val SWIPE_THRESHOLD = 100
 
     // Interval for timer
-    private val INTERVAL = 2000L // 2 seconds
+    //private val INTERVAL = 2000L // 2 seconds
+    private val INTERVAL = 200L
 
     // Discriminator for lanes (NOT USED?)
     private var leftLane: Int? = 1
@@ -46,7 +47,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     // Variables for the score
     var points: Int = 0
-    val highScoreRepository = HighScoreRepository(context)
+    //val highScoreRepository = HighScoreRepository(context)
 
     // Mutable list of objects
     private var obstacleList = mutableListOf<Obstacle>()
@@ -129,7 +130,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.playerCollsionRadius + obstacle.obstacleCollisionRadius
+        return distance < player.playerCollsionRadius + obstacle.obstacleCollisionRadius!!
     }
 
     suspend fun gameLoop(): Runnable? {
@@ -165,7 +166,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         //Draw obstacles
         obstacleList.forEach{
-            canvas?.drawCircle(it.posX, it.posY, it.obstacleCollisionRadius, it.paint!!)
+            canvas?.drawCircle(it.posX!!, it.posY!!, it.obstacleCollisionRadius!!, it.paint!!)
         }
 
         //Draw player
@@ -176,29 +177,29 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         canvas?.drawText(points.toString(), 150f, 300f, textPaint)
     }
 
-    fun setToNull(){
-        
-    }
-
     fun updateGame() {
         val obstaclesToRemove = mutableListOf<Obstacle>()
 
-        obstacleList.forEach { obstacle ->
-            val oldY = obstacle.posY
-            val newY = oldY + obstacle.speed
-            obstacle.setPos(obstacle.posX, newY)
+        obstacleList.forEach {
+            val oldY = it.posY
+            val newY = oldY?.plus(it.speed!!)
+            it.setPos(it.posX!!, newY!!)
 
-            if (checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY)) {
+            if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!)) {
                 Log.d("Collision", "true")
                 gameListener?.onCollisionDetected()
             }
 
-            if (obstacle.posY >= getScreenHeight() + obstacle.obstacleCollisionRadius) {
-                obstaclesToRemove.add(obstacle)
+            if (it.posY!! >= getScreenHeight() + it.obstacleCollisionRadius!!) {
+                obstaclesToRemove.add(it)
             }
         }
 
         obstacleList.removeAll(obstaclesToRemove)
+        obstaclesToRemove.forEach {
+            it.destroy()
+        }
+
         println("Number of items: ${obstacleList.count()}")
     }
 
@@ -209,10 +210,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         if(lane == 1)
             obstacle.posX = leftLaneX!!.toFloat()
         else if(lane == 2){
-            obstacle.posX = middleLaneX!!.toFloat()
+            //obstacle.posX = middleLaneX!!.toFloat()
+            obstacle.posX = leftLaneX!!.toFloat()
         }
         else if(lane == 3){
-            obstacle.posX = rightLaneX!!.toFloat()
+            //obstacle.posX = rightLaneX!!.toFloat()
+            obstacle.posX = leftLaneX!!.toFloat()
         }
         obstacleList.add(obstacle)
     }
