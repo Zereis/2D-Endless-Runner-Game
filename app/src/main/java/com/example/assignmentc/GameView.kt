@@ -210,12 +210,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         if(lane == 1)
             obstacle.posX = leftLaneX!!.toFloat()
         else if(lane == 2){
-            //obstacle.posX = middleLaneX!!.toFloat()
-            obstacle.posX = leftLaneX!!.toFloat()
+            obstacle.posX = middleLaneX!!.toFloat()
         }
         else if(lane == 3){
-            //obstacle.posX = rightLaneX!!.toFloat()
-            obstacle.posX = leftLaneX!!.toFloat()
+            obstacle.posX = rightLaneX!!.toFloat()
         }
         obstacleList.add(obstacle)
     }
