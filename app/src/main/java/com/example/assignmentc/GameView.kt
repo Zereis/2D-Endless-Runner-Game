@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
+import com.example.assignmentc.database.HighScore
 
 import com.example.assignmentc.database.HighScoreRepository
 
@@ -32,22 +33,15 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     private val INTERVAL = 2000L // 2 seconds
 
-    private val SWIPE_THRESHOLD = 100
-
-    private var leftLane: Int? = 1
-    private var middleLane: Int? = 2
-    private var rightLane: Int? = 3
-
     private var playerCurrentLane = 2
-
-
-    var points: Int = 0
 
     // Mutable list of objects
     private var obstacleList = mutableListOf<Obstacle>()
     private val objectsToRemove = mutableListOf<Obstacle>()
 
-    val highScoreRepository = HighScoreRepository(context)
+    private var coinsList = mutableListOf<Coins>()
+
+
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -55,12 +49,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var rightLaneX: Int? = null
 
     // Y spawn position for objects
+    private var coinsRow: Int? = null
     private var obstacleRow: Int? = null
     private var playerRow: Int? = null
 
     var gameLoopJob: Job? = null
 
-    val randomNumber = generateRandomNumber()
     var gameListener: GameListener? = null
 
     // Other game-related variables
@@ -73,8 +67,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setLanes()
         setRows()
         setStartPos()
+        //val highScore =
+        val highScore = HighScore(score = 100)
 
-        //coins.setPos(startPositionX, )
+
+        coins.setPos(startPositionX, coinsRow!!.toFloat())
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
         player.setPos(startPositionX, startPositionY)
         startTimer()
@@ -99,14 +96,14 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             override fun onFinish() {
 
                 spawnObstacle()
-
+                spawnCoins()
                 // Start the timer again for the next interval
 
                 startTimer()
             }
         }.start()
     }
-    fun generateRandomNumber(): Int {
+    private fun generateRandomNumber(): Int {
         val random = Random()
         return random.nextInt(3) + 1
     }
@@ -155,12 +152,15 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             canvas?.drawCircle(it.posX, it.posY, it.obstacleCollsionRadius, it.paint!!)
         }
 
+        coinsList.forEach{
+            canvas?.drawCircle(coins.posX, coins.posY, coins.coinsCollsionRadius, coins.paint!!)
+        }
         //Draw player
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
         //Draw text
         canvas?.drawText("Score!", 50f, 150f, textPaint)
-        canvas?.drawText(points.toString(), 150f, 300f, textPaint)
+        canvas?.drawText(player.score.toString(), 150f, 300f, textPaint)
     }
 
     fun updateGame(){
@@ -169,6 +169,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             var newY = oldY+it.speed
             it.setPos(it.posX,newY)
 
+            // player collide with enemy
             if(checkCollision(player.posX, player.posY, it.posX, it.posY))
             {
                 Log.d("Collision", "true")
@@ -180,8 +181,19 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             }
 
         }
-        
-        obstacleList.removeAll(objectsToRemove)
+
+        coinsList.forEach {
+            var oldY = coins.posY
+            var newY = oldY+coins.speed
+            coins.setPos(coins.posX,newY)
+
+            // player collide with coins
+            if(checkCollision(player.posX, player.posY, coins.posX, coins.posY))
+            {
+                player.score++
+            }
+        }
+        //obstacleList.removeAll(objectsToRemove)
         println("Number of items: "+ obstacleList.count())
     }
 
@@ -199,7 +211,20 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         }
         obstacleList.add(obstacle)
     }
-
+    fun spawnCoins(){
+        coins = Coins(context)
+        coins.posY = coinsRow!!.toFloat()
+        var lane: Int = generateRandomNumber()
+        if(lane == 1)
+            coins.posX = leftLaneX!!.toFloat()
+        else if(lane == 2){
+            coins.posX = middleLaneX!!.toFloat()
+        }
+        else if(lane == 3){
+            coins.posX = rightLaneX!!.toFloat()
+        }
+        coinsList.add(coins)
+    }
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -286,6 +311,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private fun setRows(){
         playerRow = getScreenHeight()-300
         obstacleRow = 0 //This should be something like -100 to spawn above the screen and then fall down
+        coinsRow = 0
     }
 
     //Update start position of the player
