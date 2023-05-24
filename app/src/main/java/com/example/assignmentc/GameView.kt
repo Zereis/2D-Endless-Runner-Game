@@ -15,7 +15,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
+
 import com.example.assignmentc.database.HighScoreRepository
+
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
@@ -42,7 +44,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var points: Int = 0
 
     // Mutable list of objects
-    private val obstacleList = mutableListOf<Obstacle>()
+    private var obstacleList = mutableListOf<Obstacle>()
+    private val objectsToRemove = mutableListOf<Obstacle>()
 
     val highScoreRepository = HighScoreRepository(context)
 
@@ -147,30 +150,39 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
+        //Draw obstacles
         obstacleList.forEach{
             canvas?.drawCircle(it.posX, it.posY, it.obstacleCollsionRadius, it.paint!!)
         }
 
-
+        //Draw player
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
+        //Draw text
         canvas?.drawText("Score!", 50f, 150f, textPaint)
         canvas?.drawText(points.toString(), 150f, 300f, textPaint)
     }
 
     fun updateGame(){
-        // Game logic
         obstacleList.forEach {
             var oldY = it.posY
             var newY = oldY+it.speed
             it.setPos(it.posX,newY)
-        }
 
-        if(checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY))
-        {
-            gameListener?.onCollisionDetected()
-            Log.d("Collision", "true")
+            if(checkCollision(player.posX, player.posY, it.posX, it.posY))
+            {
+                Log.d("Collision", "true")
+                gameListener?.onCollisionDetected()
+            }
+
+            if (it.posY >= getScreenHeight() + it.obstacleCollsionRadius) {
+                objectsToRemove.add(it)
+            }
+
         }
+        
+        obstacleList.removeAll(objectsToRemove)
+        println("Number of items: "+ obstacleList.count())
     }
 
     fun spawnObstacle(){
