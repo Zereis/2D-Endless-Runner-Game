@@ -10,7 +10,7 @@ class Player(private val context: Context){
     var paint: Paint? = null
     var posX: Float = 0.0f
     var posY: Float = 0.0f
-    var playerCollsionRadius: Float = 50f
+    var playerCollisionRadius: Float = 50f
     var score: Int = 0
 
 

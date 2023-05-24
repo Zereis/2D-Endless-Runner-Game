@@ -13,7 +13,6 @@ class Obstacle(private val context: Context) {
     var obstacleCollisionRadius: Float? = 50f
 
     init {
-
         paint = Paint()
         paint!!.isFilterBitmap = true
         paint!!.isAntiAlias = true
