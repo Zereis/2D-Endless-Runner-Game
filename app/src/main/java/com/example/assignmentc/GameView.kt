@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -35,8 +36,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     private var playerCurrentLane = 2
 
+
+    var points: Int = 0
+
     // Mutable list of objects
     private var obstacleList = mutableListOf<Obstacle>()
+
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -50,10 +55,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var gameLoopJob: Job? = null
 
     val randomNumber = generateRandomNumber()
-
+    var gameListener: GameListener? = null
 
     // Other game-related variables
-
+    private val textPaint: Paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 96f
+    }
+    interface GameListener {
+        fun onCollisionDetected()
+    }
     init {
         player = Player(context)
         obstacle = Obstacle(context)
@@ -70,20 +81,19 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     fun startTimer() {
         object : CountDownTimer(INTERVAL, INTERVAL) {
             override fun onTick(millisUntilFinished: Long) {
+
                 // Code to be executed every interval (5 seconds in this case)
                 // Replace this with your desired code
 
                 //println("Timer tick")
-            }
 
+            }
             override fun onFinish() {
-                // Code to be executed after the interval is over
-                // Replace this with your desired code
-                println("Timer finished")
 
                 spawnObstacle()
 
                 // Start the timer again for the next interval
+
                 startTimer()
             }
         }.start()
@@ -140,6 +150,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         //Draw player
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
+        //Draw text
+        canvas?.drawText("Score!", 50f, 150f, textPaint)
+        canvas?.drawText(points.toString(), 150f, 300f, textPaint)
     }
 
     fun updateGame(){
@@ -152,9 +165,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             {
                 Log.d("Collision", "true")
                 obstacleList.remove(it)
-                it = null
+                gameListener?.onCollisionDetected()
             }
-}
+        }
     }
 
     fun spawnObstacle(){
