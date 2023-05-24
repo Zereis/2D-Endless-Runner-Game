@@ -1,15 +1,8 @@
 package com.example.assignmentc
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.RectF
-import java.nio.file.Path
 
 class Obstacle(private val context: Context) {
 
@@ -18,7 +11,7 @@ class Obstacle(private val context: Context) {
     var posY: Float = 0.0f
     var speed: Int = 10
 
-    var obstacleCollsionRadius: Float = 50f
+    var obstacleCollisionRadius: Float = 50f
 
     init {
 

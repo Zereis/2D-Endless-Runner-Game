@@ -15,39 +15,42 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
-
 import com.example.assignmentc.database.HighScoreRepository
 
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
+    // Objects
     private var player: Player
     private var obstacle: Obstacle
     private var coins: Coins
 
+    // Start position with default values
     private var startPositionX: Float = 550f
     private var startPositionY: Float = 1800f
 
+    // Variables for swiping and switching lanes
     private var initialTouchX = 0f // Initial touch position X-coordinate
     private var isLaneSwitching = false // Flag to track lane switch state
-
-    private val INTERVAL = 2000L // 2 seconds
-
     private val SWIPE_THRESHOLD = 100
 
+    // Interval for timer
+    private val INTERVAL = 2000L // 2 seconds
+
+    // Discriminator for lanes (NOT USED?)
     private var leftLane: Int? = 1
     private var middleLane: Int? = 2
     private var rightLane: Int? = 3
 
+    // Current lane for player and default value
     private var playerCurrentLane = 2
 
-
+    // Variables for the score
     var points: Int = 0
+    val highScoreRepository = HighScoreRepository(context)
 
     // Mutable list of objects
     private var obstacleList = mutableListOf<Obstacle>()
     private val objectsToRemove = mutableListOf<Obstacle>()
-
-    val highScoreRepository = HighScoreRepository(context)
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -58,18 +61,23 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var obstacleRow: Int? = null
     private var playerRow: Int? = null
 
+    // Variable for coroutine
     var gameLoopJob: Job? = null
 
+    // Random number generator between 1-3
     val randomNumber = generateRandomNumber()
+
+    // Listener for when the player loses game
     var gameListener: GameListener? = null
 
     // Other game-related variables
     init {
+        // Initialize up objects
         player = Player(context)
         obstacle = Obstacle(context)
         coins = Coins(context)
 
-        //Set up lanes, rows and start position for player and obstacles
+        // Set up lanes, rows and start position for player and obstacles
         setLanes()
         setRows()
         setStartPos()
@@ -79,13 +87,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         player.setPos(startPositionX, startPositionY)
         startTimer()
     }
+
     private val textPaint: Paint = Paint().apply {
         color = Color.WHITE
         textSize = 96f
     }
+
     interface GameListener {
         fun onCollisionDetected()
     }
+
     fun startTimer() {
         object : CountDownTimer(INTERVAL, INTERVAL) {
             override fun onTick(millisUntilFinished: Long) {
@@ -106,6 +117,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             }
         }.start()
     }
+
     fun generateRandomNumber(): Int {
         val random = Random()
         return random.nextInt(3) + 1
@@ -117,8 +129,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.playerCollsionRadius + obstacle.obstacleCollsionRadius
+        return distance < player.playerCollsionRadius + obstacle.obstacleCollisionRadius
     }
+
     suspend fun gameLoop(): Runnable? {
         while (true) {
             // Perform game logic and rendering here
@@ -152,7 +165,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         //Draw obstacles
         obstacleList.forEach{
-            canvas?.drawCircle(it.posX, it.posY, it.obstacleCollsionRadius, it.paint!!)
+            canvas?.drawCircle(it.posX, it.posY, it.obstacleCollisionRadius, it.paint!!)
         }
 
         //Draw player
@@ -163,26 +176,30 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         canvas?.drawText(points.toString(), 150f, 300f, textPaint)
     }
 
-    fun updateGame(){
-        obstacleList.forEach {
-            var oldY = it.posY
-            var newY = oldY+it.speed
-            it.setPos(it.posX,newY)
+    fun setToNull(){
+        
+    }
 
-            if(checkCollision(player.posX, player.posY, it.posX, it.posY))
-            {
+    fun updateGame() {
+        val obstaclesToRemove = mutableListOf<Obstacle>()
+
+        obstacleList.forEach { obstacle ->
+            val oldY = obstacle.posY
+            val newY = oldY + obstacle.speed
+            obstacle.setPos(obstacle.posX, newY)
+
+            if (checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY)) {
                 Log.d("Collision", "true")
                 gameListener?.onCollisionDetected()
             }
 
-            if (it.posY >= getScreenHeight() + it.obstacleCollsionRadius) {
-                objectsToRemove.add(it)
+            if (obstacle.posY >= getScreenHeight() + obstacle.obstacleCollisionRadius) {
+                obstaclesToRemove.add(obstacle)
             }
-
         }
-        
-        obstacleList.removeAll(objectsToRemove)
-        println("Number of items: "+ obstacleList.count())
+
+        obstacleList.removeAll(obstaclesToRemove)
+        println("Number of items: ${obstacleList.count()}")
     }
 
     fun spawnObstacle(){
