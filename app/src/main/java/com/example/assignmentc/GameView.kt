@@ -15,10 +15,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
+import com.example.assignmentc.database.HighScoreRepository
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
     private var obstacle: Obstacle
+    private var coins: Coins
+
     private var startPositionX: Float = 550f
     private var startPositionY: Float = 1800f
 
@@ -41,6 +44,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Mutable list of objects
     private val obstacleList = mutableListOf<Obstacle>()
 
+    val highScoreRepository = HighScoreRepository(context)
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -57,25 +61,27 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var gameListener: GameListener? = null
 
     // Other game-related variables
-    private val textPaint: Paint = Paint().apply {
-        color = Color.WHITE
-        textSize = 96f
-    }
-    interface GameListener {
-        fun onCollisionDetected()
-    }
     init {
         player = Player(context)
         obstacle = Obstacle(context)
+        coins = Coins(context)
 
         //Set up lanes, rows and start position for player and obstacles
         setLanes()
         setRows()
         setStartPos()
 
+        //coins.setPos(startPositionX, )
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
         player.setPos(startPositionX, startPositionY)
         startTimer()
+    }
+    private val textPaint: Paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 96f
+    }
+    interface GameListener {
+        fun onCollisionDetected()
     }
     fun startTimer() {
         object : CountDownTimer(INTERVAL, INTERVAL) {
@@ -154,8 +160,6 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     fun updateGame(){
         // Game logic
-
-
         obstacleList.forEach {
             var oldY = it.posY
             var newY = oldY+it.speed
