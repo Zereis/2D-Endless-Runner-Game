@@ -11,7 +11,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import java.nio.file.Path
 
-class Obstacle(private val context: Context) : Path {
+class Obstacle(private val context: Context) {
 
     var paint: Paint? = null
     var posX: Float = 0.0f

@@ -41,6 +41,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     // Mutable list of objects
     private var obstacleList = mutableListOf<Obstacle>()
+    private val objectsToRemove = mutableListOf<Obstacle>()
 
 
     // Lane X coordinates for positioning.
@@ -164,10 +165,17 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             if(checkCollision(player.posX, player.posY, it.posX, it.posY))
             {
                 Log.d("Collision", "true")
-                obstacleList.remove(it)
                 gameListener?.onCollisionDetected()
             }
+
+            if (it.posY >= getScreenHeight() + it.obstacleCollsionRadius) {
+                objectsToRemove.add(it)
+            }
+
         }
+        
+        obstacleList.removeAll(objectsToRemove)
+        println("Number of items: "+ obstacleList.count())
     }
 
     fun spawnObstacle(){
