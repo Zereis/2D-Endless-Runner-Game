@@ -12,6 +12,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Random
+import android.os.CountDownTimer
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
@@ -21,6 +23,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     private var initialTouchX = 0f // Initial touch position X-coordinate
     private var isLaneSwitching = false // Flag to track lane switch state
+
+    private val INTERVAL = 5000L // 5 seconds
 
     private val SWIPE_THRESHOLD = 100
 
@@ -41,6 +45,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     var gameLoopJob: Job? = null
 
+    val randomNumber = generateRandomNumber()
+
+
     // Other game-related variables
 
     init {
@@ -54,6 +61,28 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())
         player.setPos(startPositionX, startPositionY)
+    }
+    fun startTimer() {
+        object : CountDownTimer(INTERVAL, INTERVAL) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Code to be executed every interval (5 seconds in this case)
+                // Replace this with your desired code
+                println("Timer tick")
+            }
+
+            override fun onFinish() {
+                // Code to be executed after the interval is over
+                // Replace this with your desired code
+                println("Timer finished")
+
+                // Start the timer again for the next interval
+                startTimer()
+            }
+        }.start()
+    }
+    fun generateRandomNumber(): Int {
+        val random = Random()
+        return random.nextInt(3) + 1
     }
 
     private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float): Boolean {
