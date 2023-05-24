@@ -9,8 +9,9 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
+import java.nio.file.Path
 
-class Obstacle(private val context: Context) {
+class Obstacle(private val context: Context) : Path {
 
     var paint: Paint? = null
     var posX: Float = 0.0f

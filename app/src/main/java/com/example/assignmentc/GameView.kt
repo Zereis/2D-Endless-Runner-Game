@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
+import java.nio.file.Files.delete
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     private var player: Player
@@ -35,7 +36,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var playerCurrentLane = 2
 
     // Mutable list of objects
-    private val obstacleList = mutableListOf<Obstacle>()
+    private var obstacleList = mutableListOf<Obstacle>()
 
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
@@ -131,43 +132,29 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
+        //Draw obstacles
         obstacleList.forEach{
             canvas?.drawCircle(it.posX, it.posY, it.obstacleCollsionRadius, it.paint!!)
         }
 
-
+        //Draw player
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
-        /*
-        if(playerCurrentLane == leftLane)
-        {
-            canvas?.drawCircle(leftLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        else if(playerCurrentLane == middleLane)
-        {
-            canvas?.drawCircle(middleLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        else if(playerCurrentLane == rightLane)
-        {
-            canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        */
     }
 
     fun updateGame(){
-        // Game logic
-
-
         obstacleList.forEach {
             var oldY = it.posY
             var newY = oldY+it.speed
             it.setPos(it.posX,newY)
-        }
 
-        if(checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY))
-        {
-            Log.d("Collision", "true")
-        }
+            if(checkCollision(player.posX, player.posY, it.posX, it.posY))
+            {
+                Log.d("Collision", "true")
+                obstacleList.remove(it)
+                it = null
+            }
+}
     }
 
     fun spawnObstacle(){
