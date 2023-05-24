@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -34,6 +35,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     private var playerCurrentLane = 2
 
+    var points: Int = 0
+
     // Lane X coordinates for positioning.
     var leftLaneX: Int? = null
     var middleLaneX: Int? = null
@@ -46,10 +49,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var gameLoopJob: Job? = null
 
     val randomNumber = generateRandomNumber()
-
+    var gameListener: GameListener? = null
 
     // Other game-related variables
-
+    private val textPaint: Paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 96f
+    }
+    interface GameListener {
+        fun onCollisionDetected()
+    }
     init {
         player = Player(context)
         obstacle = Obstacle(context)
@@ -65,17 +74,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     fun startTimer() {
         object : CountDownTimer(INTERVAL, INTERVAL) {
             override fun onTick(millisUntilFinished: Long) {
-                // Code to be executed every interval (5 seconds in this case)
-                // Replace this with your desired code
-                println("Timer tick")
+
             }
-
             override fun onFinish() {
-                // Code to be executed after the interval is over
-                // Replace this with your desired code
-                println("Timer finished")
 
-                // Start the timer again for the next interval
                 startTimer()
             }
         }.start()
@@ -128,20 +130,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         canvas?.drawCircle(player.posX, player.posY, player.playerCollsionRadius, player.paint!!)
 
-        /*
-        if(playerCurrentLane == leftLane)
-        {
-            canvas?.drawCircle(leftLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        else if(playerCurrentLane == middleLane)
-        {
-            canvas?.drawCircle(middleLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        else if(playerCurrentLane == rightLane)
-        {
-            canvas?.drawCircle(rightLaneX!!.toFloat(),startPositionY, 50f, player.paint!!)
-        }
-        */
+        canvas?.drawText("Score!", 50f, 150f, textPaint)
+        canvas?.drawText(points.toString(), 150f, 300f, textPaint)
     }
 
     fun updateGame(){
@@ -153,6 +143,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         if(checkCollision(player.posX, player.posY, obstacle.posX, obstacle.posY))
         {
+            gameListener?.onCollisionDetected()
             Log.d("Collision", "true")
         }
     }
