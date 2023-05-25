@@ -126,7 +126,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                 }
 
                 speedCounter++
-                if(speedCounter>=10){
+                if(speedCounter>=7){
                     updateSpeed()
                     speedCounter = 0
                 }
