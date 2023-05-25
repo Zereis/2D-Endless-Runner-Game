@@ -1,36 +1,30 @@
-package com.example.assignmentc.database
+package com.example.assignmentc
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [HighScore::class], version = 1)
+@Database(entities = [HighScore::class], version = 1, exportSchema = false)
 abstract class HighScoreDatabase : RoomDatabase() {
     abstract fun highScoreDao(): HighScoreDao
 
-    companion object{
-
+    companion object {
         @Volatile
-        private var INSTANCE : HighScoreDatabase? = null
+        private var INSTANCE: HighScoreDatabase? = null
 
-        fun getDatabase(context: Context): HighScoreDatabase{
-
-            val tempInstance = INSTANCE
-            if(tempInstance != null){
-                return tempInstance
-            }
-            synchronized(this){
+        fun getDatabase(context: Context): HighScoreDatabase {
+            synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     HighScoreDatabase::class.java,
-                    "app_database"
+                    "high_score_database"
+
                 ).build()
+
                 INSTANCE = instance
                 return instance
             }
-
         }
-
     }
 }

@@ -14,7 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
-import com.example.assignmentc.database.HighScore
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     // Objects
@@ -73,7 +72,15 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Listener for when the player loses game
     var gameListener: GameListener? = null
 
+
+    private lateinit var highScoreDatabase: HighScoreDatabase
+
+    private fun initializeDatabase(context: Context) {
+        highScoreDatabase = HighScoreDatabase.getDatabase(context)
+    }
+
     var timerStarted: Boolean = false
+
 
     // Other game-related variables
     init {
@@ -87,7 +94,6 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
-        val highScore = HighScore(score = 100)
 
         gameSpeed = 10
         //updateSpeed()
@@ -95,6 +101,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         coins.setPos(startPositionX, objectRow!!.toFloat())
         obstacle.setPos(startPositionX, objectRow!!.toFloat())
+
         player.setPos(startPositionX, startPositionY)
         timerStarted = true
         startTimer()
@@ -204,7 +211,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         canvas?.drawText(player.score.toString(), 150f, 300f, textPaint)
     }
 
-    fun updateGame() {
+    private suspend fun updateGame() {
         obstacleList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
@@ -214,7 +221,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             {
                 obstaclesToRemove.add(it)
                 timerStarted = false
+
                 gameListener?.onCollisionDetected()
+                val highScore = HighScore(null,player.score)
+                highScoreDatabase.highScoreDao().insert(highScore)
             }
 
             if (it.posY!! >= getScreenHeight() + it.obstacleCollisionRadius!!) {
