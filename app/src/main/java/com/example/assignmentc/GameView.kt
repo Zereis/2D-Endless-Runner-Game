@@ -41,7 +41,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var playerCurrentLane = 2
 
     // Variables for the score
-    var points: Int = 0
+    var points: Int = 0 // This says it is never used?
     //val highScoreRepository = HighScoreRepository(context)
 
     // Mutable list of objects
@@ -56,11 +56,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     var rightLaneX: Int? = null
 
     // Y spawn position for objects
-    //private var coinsRow: Int? = null
     private var objectRow: Int? = null
     private var playerRow: Int? = null
     private var gameSpeed: Int? = null
 
+    // Counter for increasing the speed
     private var speedCounter: Int = 0
 
     // Variable for coroutine
@@ -72,17 +72,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Listener for when the player loses game
     var gameListener: GameListener? = null
 
-
+    // Database variables
     private lateinit var highScoreDatabase: HighScoreDatabase
-
     private fun initializeDatabase(context: Context) {
         highScoreDatabase = HighScoreDatabase.getDatabase(context)
     }
 
+    // Timer bool for starting and stopping the timer
     var timerStarted: Boolean = false
 
-
-    // Other game-related variables
+    // Initializer that runs when the view starts
     init {
         // Initialize up objects
         player = Player(context)
@@ -94,36 +93,40 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
-
+        // Initialize speed related variables
         gameSpeed = 10
-        //updateSpeed()
         speedCounter = 0
 
+        // Set default positions for objects and plauer.
         coins.setPos(startPositionX, objectRow!!.toFloat())
         obstacle.setPos(startPositionX, objectRow!!.toFloat())
-
         player.setPos(startPositionX, startPositionY)
+
+        // Start timer
         timerStarted = true
         startTimer()
     }
 
+    // Score text variables
     private val textPaint: Paint = Paint().apply {
         color = Color.WHITE
         textSize = 96f
     }
 
+    // Listener for collider
     interface GameListener {
         fun onCollisionDetected()
     }
 
+    // Timer that controls the spawn rate and score increasing.
     fun startTimer() {
         object : CountDownTimer(timeInterval, 300L) {
             override fun onTick(millisUntilFinished: Long) {
-
+                // Increase score by 1 every 0.3 seconds.
                 player.score+=1
-                //println("Timer tick")
             }
             override fun onFinish() {
+                // Spawn random object (20% chance for coin)
                 var tempNumber = generateRandomObject()
                 if(tempNumber>=80){
                     spawnCoin()
@@ -132,13 +135,13 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                     spawnObstacle()
                 }
 
+                // Increase counter. When it hits 7, increase the speed of the game.
                 speedCounter++
                 if(speedCounter>=7){
                     updateSpeed()
                     speedCounter = 0
                 }
 
-                //println("Timer finish")
                 // Start the timer again for the next interval
                 if(timerStarted){
                     startTimer()
@@ -156,6 +159,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         return random.nextInt(100)+1
     }
 
+    // Check collision between player and an object
     private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float, objectRadius: Float): Boolean {
         val distanceX = playerX - objectX
         val distanceY = playerY - objectY
@@ -165,18 +169,19 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         return distance < player.playerCollisionRadius + objectRadius
     }
 
+    // A coroutine game loop that updates the game indefinitely while the game is running.
     suspend fun gameLoop(): Runnable? {
         while (true) {
             // Perform game logic and rendering here
             updateGame()
 
-            //Log.d("MESSAGE", "TEST")
-
-            delay(16) // Delay for approximately 16 milliseconds (60 frames per second)
+            // Delay for approximately 16 milliseconds (60 frames per second)
+            delay(16)
             invalidate() // Request a redraw of the view
         }
     }
 
+    // Runs the game loop when this view opens.
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
@@ -184,35 +189,41 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             gameLoop()
         }
     }
-    
+
+    // Stops the game loop when this view closes
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
         gameLoopJob?.cancel()
     }
 
+    // Draws on the canvas to update visuals.
     override fun draw(canvas: Canvas?)
     {
         super.draw(canvas)
         canvas?.drawColor(Color.RED)
 
-        //Draw obstacles
+        // Draw obstacles
         obstacleList.forEach{
             canvas?.drawCircle(it.posX!!, it.posY!!, it.obstacleCollisionRadius!!, it.paint!!)
         }
 
+        // Draw coins
         coinsList.forEach{
             canvas?.drawCircle(it.posX!!, it.posY!!, it.coinCollisionRadius!!, it.paint!!)
         }
-        //Draw player
+
+        // Draw player
         canvas?.drawCircle(player.posX, player.posY, player.playerCollisionRadius, player.paint!!)
 
-        //Draw text
+        // Draw text
         canvas?.drawText("Score!", 50f, 150f, textPaint)
         canvas?.drawText(player.score.toString(), 150f, 300f, textPaint)
     }
 
+    // Update loop. All logic for the game that needs to update is here
     private suspend fun updateGame() {
+        // Update position and check collision for each obstacle
         obstacleList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
@@ -233,6 +244,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             }
         }
 
+        // Update position and check collision for each coin
         coinsList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
@@ -250,22 +262,28 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             }
         }
 
+        // Remove inactive obstacles from the list and set all references to it, to null. This lets the garbage collector clean it up.
         obstacleList.removeAll(obstaclesToRemove)
         obstaclesToRemove.forEach {
             it.destroy()
         }
+
+        // Remove inactive coins from the list and set all references to it, to null. This lets the garbage collector clean it up.
         coinsList.removeAll(coinsToRemove)
         coinsToRemove.forEach{
             it.destroy()
         }
 
         //println("Number of obstacles: ${obstacleList.count()}")
-        println("Number of coins: ${coinsList.count()}")
+        //println("Number of coins: ${coinsList.count()}")
     }
 
     fun spawnObstacle(){
+        // Instantiate a new obstacle and set its Y position
         obstacle = Obstacle(context)
         obstacle.posY = objectRow!!.toFloat()
+
+        // Choose a random lane for the obstacle to spawn into.
         var lane: Int = generateRandomNumber()
         if(lane == 1)
             obstacle.posX = leftLaneX!!.toFloat()
@@ -275,13 +293,18 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(lane == 3){
             obstacle.posX = rightLaneX!!.toFloat()
         }
+
+        // Set the speed to the current speed and add it to the list
         obstacle.speed = gameSpeed
         obstacleList.add(obstacle)
     }
 
     fun spawnCoin(){
+        // Instantiate a new coin and set its Y position
         coins = Coins(context)
         coins.posY = objectRow!!.toFloat()
+
+        // Choose a random lane for the obstacle to spawn into.
         var lane: Int = generateRandomNumber()
         if(lane == 1)
             coins.posX = leftLaneX!!.toFloat()
@@ -291,10 +314,13 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(lane == 3){
             coins.posX = rightLaneX!!.toFloat()
         }
+
+        // Set the speed to the current speed and add it to the list
         coins.speed = gameSpeed
         coinsList.add(coins)
     }
 
+    // Handles the swiping and moving the player to each lane
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -348,6 +374,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         return true
     }
 
+    // Sets the players postion to the correct lane
     private fun UpdatePlayerPos(){
         if(playerCurrentLane == 1){
             player.setPos(leftLaneX!!.toFloat(), startPositionY)
@@ -360,6 +387,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         }
     }
 
+    // Updates the speed of the objects and their spawn rate
     private fun updateSpeed(){
         if(gameSpeed!! <=50){
             gameSpeed = gameSpeed!! + 1
