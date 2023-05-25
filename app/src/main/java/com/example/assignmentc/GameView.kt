@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +31,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private var isLaneSwitching = false // Flag to track lane switch state
 
     // Interval for timer
-    private val INTERVAL = 2000L // 2 seconds
+    private var timeInterval = 2000L // 2 seconds
 
     // Discriminator for lanes (NOT USED?)
     private var leftLane: Int? = 1
@@ -90,8 +89,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         val highScore = HighScore(score = 100)
 
-        gameSpeed = 9
-        updateSpeed()
+        gameSpeed = 10
+        //updateSpeed()
         speedCounter = 0
 
         coins.setPos(startPositionX, objectRow!!.toFloat())
@@ -111,10 +110,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     }
 
     fun startTimer() {
-        object : CountDownTimer(INTERVAL, INTERVAL) {
+        object : CountDownTimer(timeInterval, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
 
-                //println("Timer tick")
+                println("Timer tick")
             }
             override fun onFinish() {
                 var tempNumber = generateRandomObject()
@@ -350,14 +349,20 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     }
 
     private fun updateSpeed(){
-        gameSpeed = gameSpeed!! + 1
-        obstacleList.forEach {
-            it.speed = gameSpeed
+        if(gameSpeed!! <=50){
+            gameSpeed = gameSpeed!! + 1
+            obstacleList.forEach {
+                it.speed = gameSpeed
+            }
+            coinsList.forEach {
+                it.speed = gameSpeed
+            }
         }
-        coinsList.forEach {
-            it.speed = gameSpeed
+
+        if(timeInterval>200L){
+            timeInterval -= 100L
         }
-        println("GAMESPEED: $gameSpeed")
+        println("GAMESPEED: $gameSpeed. TIMEINTERVAL: $timeInterval")
     }
 
     //Sets the lanes X position depending on screen size.
