@@ -212,6 +212,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.obstacleCollisionRadius!!))
             {
+                obstaclesToRemove.add(it)
                 timerStarted = false
                 gameListener?.onCollisionDetected()
             }
