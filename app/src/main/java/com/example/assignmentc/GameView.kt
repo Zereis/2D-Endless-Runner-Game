@@ -73,7 +73,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private lateinit var highScoreDatabase: HighScoreDatabase
 
     private fun initializeDatabase(context: Context) {
-        //highScoreDatabase = HighScoreDatabase.getDatabase(context)
+        highScoreDatabase = HighScoreDatabase.getDatabase(context)
     }
 
     // Other game-related variables
@@ -88,9 +88,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
-
         initializeDatabase(context)
-        
+
         coins.setPos(startPositionX, objectRow!!.toFloat())
         obstacle.setPos(startPositionX, objectRow!!.toFloat())
 
@@ -193,7 +192,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         canvas?.drawText(player.score.toString(), 150f, 300f, textPaint)
     }
 
-    fun updateGame() {
+    private suspend fun updateGame() {
         obstacleList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
@@ -201,7 +200,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.obstacleCollisionRadius!!))
             {
+                obstaclesToRemove.add(it)
                 gameListener?.onCollisionDetected()
+                val highScore = HighScore(null,player.score)
+                highScoreDatabase.highScoreDao().insert(highScore)
             }
 
             if (it.posY!! >= getScreenHeight() + it.obstacleCollisionRadius!!) {

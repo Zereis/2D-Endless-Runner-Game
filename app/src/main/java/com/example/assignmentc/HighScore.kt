@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "high_scores")
+@Entity(tableName = "high_score_table")
 data class HighScore(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "score") val score: Int
+    @PrimaryKey(autoGenerate = true) val id: Int?,
+    val score: Int
 )

@@ -17,6 +17,9 @@ interface HighScoreDao {
     @Delete
     suspend fun delete(highScore: HighScore)
 
-    @Query("SELECT * FROM high_scores ORDER BY score DESC")
+    @Query("SELECT * FROM high_score_table ORDER BY score DESC")
     suspend fun getAllHighScores(): List<HighScore>
+
+    @Query("SELECT * FROM high_score_table ORDER BY score DESC LIMIT 1")
+    suspend fun getHighestScore(): HighScore?
 }
