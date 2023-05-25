@@ -273,11 +273,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                 if (!isLaneSwitching) {
                     val currentTouchX = event.x
                     val distance = currentTouchX - initialTouchX
-
+                    println("SWIPE DISTANCE: $distance")
                     // Determine swipe direction
                     val swipeDirection = when {
-                        distance > 0 -> "Right"
-                        distance < 0 -> "Left"
+                        distance > 100 -> "Right"
+                        distance < -100 -> "Left"
                         else -> ""
                     }
 
@@ -306,11 +306,6 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                             }
                         }
                     }
-
-
-
-                    // Reset initial touch position
-                    initialTouchX = currentTouchX
                 }
             }
             MotionEvent.ACTION_UP -> {
