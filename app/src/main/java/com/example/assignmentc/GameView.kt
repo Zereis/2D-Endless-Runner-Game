@@ -117,14 +117,15 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     }
 
     fun startTimer() {
-        object : CountDownTimer(timeInterval, 1000L) {
+        object : CountDownTimer(timeInterval, 300L) {
             override fun onTick(millisUntilFinished: Long) {
 
-                println("Timer tick")
+                player.score+=1
+                //println("Timer tick")
             }
             override fun onFinish() {
                 var tempNumber = generateRandomObject()
-                if(tempNumber>=50){
+                if(tempNumber>=80){
                     spawnCoin()
                 }
                 else{
@@ -137,7 +138,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                     speedCounter = 0
                 }
 
-                println("Timer finish")
+                //println("Timer finish")
                 // Start the timer again for the next interval
                 if(timerStarted){
                     startTimer()
@@ -161,7 +162,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.playerCollisionRadius!! + objectRadius!!
+        return distance < player.playerCollisionRadius + objectRadius
     }
 
     suspend fun gameLoop(): Runnable? {
@@ -240,7 +241,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             // player collide with coins
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.coinCollisionRadius!!))
             {
-                player.score++
+                player.score+=15
                 coinsToRemove.add(it)
             }
 
