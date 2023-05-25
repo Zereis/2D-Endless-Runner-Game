@@ -60,6 +60,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     //private var coinsRow: Int? = null
     private var objectRow: Int? = null
     private var playerRow: Int? = null
+    private var gameSpeed: Int? = null
+
+    private var speedCounter: Int = 0
 
     // Variable for coroutine
     var gameLoopJob: Job? = null
@@ -70,11 +73,15 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Listener for when the player loses game
     var gameListener: GameListener? = null
 
+
     private lateinit var highScoreDatabase: HighScoreDatabase
 
     private fun initializeDatabase(context: Context) {
         highScoreDatabase = HighScoreDatabase.getDatabase(context)
     }
+
+    var timerStarted: Boolean = false
+
 
     // Other game-related variables
     init {
@@ -88,12 +95,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
-        initializeDatabase(context)
+
+        gameSpeed = 9
+        updateSpeed()
+        speedCounter = 0
 
         coins.setPos(startPositionX, objectRow!!.toFloat())
         obstacle.setPos(startPositionX, objectRow!!.toFloat())
 
         player.setPos(startPositionX, startPositionY)
+        timerStarted = true
         startTimer()
     }
 
@@ -121,8 +132,17 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                     spawnObstacle()
                 }
 
+                speedCounter++
+                if(speedCounter>=7){
+                    updateSpeed()
+                    speedCounter = 0
+                }
+
+                println("Timer finish")
                 // Start the timer again for the next interval
-                startTimer()
+                if(timerStarted){
+                    startTimer()
+                }
             }
         }.start()
     }
@@ -200,7 +220,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.obstacleCollisionRadius!!))
             {
+
                 obstaclesToRemove.add(it)
+
+                timerStarted = false
+
                 gameListener?.onCollisionDetected()
                 val highScore = HighScore(null,player.score)
                 highScoreDatabase.highScoreDao().insert(highScore)
@@ -253,6 +277,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(lane == 3){
             obstacle.posX = rightLaneX!!.toFloat()
         }
+        obstacle.speed = gameSpeed
         obstacleList.add(obstacle)
     }
 
@@ -268,6 +293,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(lane == 3){
             coins.posX = rightLaneX!!.toFloat()
         }
+        coins.speed = gameSpeed
         coinsList.add(coins)
     }
 
@@ -282,11 +308,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                 if (!isLaneSwitching) {
                     val currentTouchX = event.x
                     val distance = currentTouchX - initialTouchX
-
+                    println("SWIPE DISTANCE: $distance")
                     // Determine swipe direction
                     val swipeDirection = when {
-                        distance > 0 -> "Right"
-                        distance < 0 -> "Left"
+                        distance > 100 -> "Right"
+                        distance < -100 -> "Left"
                         else -> ""
                     }
 
@@ -310,16 +336,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
                                 UpdatePlayerPos()
                                 isLaneSwitching = true
-
-
                             }
                         }
                     }
-
-
-
-                    // Reset initial touch position
-                    initialTouchX = currentTouchX
                 }
             }
             MotionEvent.ACTION_UP -> {
@@ -341,6 +360,17 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(playerCurrentLane == 3){
             player.setPos(rightLaneX!!.toFloat(), startPositionY)
         }
+    }
+
+    private fun updateSpeed(){
+        gameSpeed = gameSpeed!! + 1
+        obstacleList.forEach {
+            it.speed = gameSpeed
+        }
+        coinsList.forEach {
+            it.speed = gameSpeed
+        }
+        println("GAMESPEED: $gameSpeed")
     }
 
     //Sets the lanes X position depending on screen size.

@@ -19,7 +19,7 @@ class Player(private val context: Context){
         paint = Paint()
         paint!!.isFilterBitmap = true
         paint!!.isAntiAlias = true
-        paint!!.color = Color.YELLOW
+        paint!!.color = Color.WHITE
 
     }
 
