@@ -130,13 +130,13 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         return random.nextInt(100)+1
     }
 
-    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float): Boolean {
+    private fun checkCollision(playerX: Float, playerY: Float, objectX: Float, objectY: Float, objectRadius: Float): Boolean {
         val distanceX = playerX - objectX
         val distanceY = playerY - objectY
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.playerCollisionRadius + obstacle.obstacleCollisionRadius!!
+        return distance < player.playerCollisionRadius!! + objectRadius!!
     }
 
     suspend fun gameLoop(): Runnable? {
@@ -187,14 +187,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     }
 
     fun updateGame() {
-        //val obstaclesToRemove = mutableListOf<Obstacle>()
-
         obstacleList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
             it.setPos(it.posX!!, newY!!)
 
-            if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!))
+            if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.obstacleCollisionRadius!!))
             {
                 gameListener?.onCollisionDetected()
             }
@@ -210,7 +208,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             it.setPos(it.posX!!, newY!!)
 
             // player collide with coins
-            if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!))
+            if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.coinCollisionRadius!!))
             {
                 player.score++
                 coinsToRemove.add(it)
@@ -334,9 +332,6 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         else if(playerCurrentLane == 3){
             player.setPos(rightLaneX!!.toFloat(), startPositionY)
         }
-
-        Log.d("Player Y Pos", player.posY.toString())
-        Log.d("Player X Pos", player.posX.toString())
     }
 
     //Sets the lanes X position depending on screen size.
