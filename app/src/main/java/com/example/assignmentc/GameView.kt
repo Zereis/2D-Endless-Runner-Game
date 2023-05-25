@@ -15,7 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
-import com.example.assignmentc.database.HighScore
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     // Objects
@@ -71,6 +70,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Listener for when the player loses game
     var gameListener: GameListener? = null
 
+    private lateinit var highScoreDatabase: HighScoreDatabase
+
+    private fun initializeDatabase(context: Context) {
+        //highScoreDatabase = HighScoreDatabase.getDatabase(context)
+    }
+
     // Other game-related variables
     init {
         // Initialize up objects
@@ -82,9 +87,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setLanes()
         setRows()
         setStartPos()
-        //val highScore =
-        val highScore = HighScore(score = 100)
 
+        initializeDatabase(context)
 
         coins.setPos(startPositionX, coinsRow!!.toFloat())
         obstacle.setPos(startPositionX, obstacleRow!!.toFloat())

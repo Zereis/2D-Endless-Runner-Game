@@ -1,20 +1,22 @@
-package com.example.assignmentc.database
+package com.example.assignmentc
+
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [HighScore::class], version = 1)
-abstract class HighScoreDatabase : RoomDatabase() {
-    abstract fun highScoreDao(): HighScoreDao
+@Database(entities = [Student :: class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+
+    abstract fun studentDao() : StudentDao
 
     companion object{
 
         @Volatile
-        private var INSTANCE : HighScoreDatabase? = null
+        private var INSTANCE : AppDatabase? = null
 
-        fun getDatabase(context: Context): HighScoreDatabase{
+        fun getDatabase(context: Context): AppDatabase{
 
             val tempInstance = INSTANCE
             if(tempInstance != null){
@@ -23,7 +25,7 @@ abstract class HighScoreDatabase : RoomDatabase() {
             synchronized(this){
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    HighScoreDatabase::class.java,
+                    AppDatabase::class.java,
                     "app_database"
                 ).build()
                 INSTANCE = instance
@@ -33,4 +35,5 @@ abstract class HighScoreDatabase : RoomDatabase() {
         }
 
     }
+
 }
