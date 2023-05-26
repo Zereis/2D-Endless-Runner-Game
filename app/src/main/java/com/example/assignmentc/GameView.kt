@@ -2,8 +2,6 @@ package com.example.assignmentc
 
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -116,7 +114,12 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     }
 
     // Score text variables
-    private val textPaint: Paint = Paint().apply {
+    private val scorePaint: Paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 96f
+        textAlign = Paint.Align.CENTER
+    }
+    private val scoreTextPaint: Paint = Paint().apply {
         color = Color.WHITE
         textSize = 96f
     }
@@ -238,8 +241,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         }
 
         // Draw text
-        canvas?.drawText("Score!", 50f, 150f, textPaint)
-        canvas?.drawText(player.score.toString(), 150f, 300f, textPaint)
+        canvas?.drawText("Score!", 50f, 150f, scoreTextPaint)
+        canvas?.drawText(player.score.toString(), 180f, 300f, scorePaint)
     }
 
     // Update loop. All logic for the game that needs to update is here
@@ -435,7 +438,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     //Set the players and the obstacles rows (y) depending on screen size
     private fun setRows(){
-        playerRow = getScreenHeight()-300
+        playerRow = getScreenHeight()-400
         objectRow = -100 //This should be something like -100 to spawn above the screen and then fall down
     }
 
