@@ -134,7 +134,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         // Initialize speed related variables
         gameSpeed = 13
         speedCounter = 0
-        
+
         // Database
         initializeDatabase(context)
 
