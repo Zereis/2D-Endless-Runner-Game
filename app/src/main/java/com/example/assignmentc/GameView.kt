@@ -103,7 +103,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         speedCounter = 0
 
-        // Set default positions for objects and plauer.
+        // Set default positions for objects and player.
         coins.setPos(startPositionX, objectRow!!.toFloat())
         obstacle.setPos(startPositionX, objectRow!!.toFloat())
         player.setPos(startPositionX, startPositionY)
