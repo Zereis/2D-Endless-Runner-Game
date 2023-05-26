@@ -209,16 +209,25 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     override fun draw(canvas: Canvas?)
     {
         super.draw(canvas)
-        canvas?.drawColor(Color.RED)
+        canvas?.drawColor(Color.GREEN)
 
         // Draw obstacles
-        obstacleList.forEach{
-            canvas?.drawCircle(it.posX!!, it.posY!!, it.obstacleCollisionRadius!!, it.paint!!)
+        obstacleList.forEach {
+            obstacle.obstacleBitmap?.let { bitmap ->
+                canvas?.drawBitmap(
+                    bitmap,
+                    it.posX!! - bitmap.width / 2,
+                    it.posY!! - bitmap.height / 2,
+                    null
+                )
+            }
         }
-
         // Draw coins
         coinsList.forEach{
-            canvas?.drawCircle(it.posX!!, it.posY!!, it.coinCollisionRadius!!, it.paint!!)
+         coins.coinsBitmap ?.let { bitmap ->
+             canvas?.drawBitmap(bitmap, it.posX!! - bitmap.width / 2, it.posY!! - bitmap.height / 2, null)
+         }
+        //canvas?.drawCircle(it.posX!!, it.posY!!, it.coinCollisionRadius!!, it.paint!!)
         }
 
         // Draw player
