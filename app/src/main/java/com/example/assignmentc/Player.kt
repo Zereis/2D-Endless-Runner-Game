@@ -20,6 +20,9 @@ class Player(private val context: Context){
     private var width: Int = 0
     private var height: Int = 0
     var playerCollisionRadius: Float = 0f
+
+    var speed: Float = 0f
+
     init {
 
         val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.player_car)
@@ -31,6 +34,9 @@ class Player(private val context: Context){
         
         playerBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, false)
         Log.d("PlayerImage", "Image width: $width, height: $height")
+
+        speed = 50f
+
     }
     fun setPos(X: Float, Y: Float){
         posX = X

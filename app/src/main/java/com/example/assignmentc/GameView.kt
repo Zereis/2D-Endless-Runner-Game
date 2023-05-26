@@ -248,6 +248,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Update loop. All logic for the game that needs to update is here
     private suspend fun updateGame() {
         // Update position and check collision for each obstacle
+
+        // THIS NEEDS TO CHECK FOR CLOSENESS AS IT IS NOT SURE THAT IT WILL LAND 100% ON THE LANEX
+        movePlayer()
+
         obstacleList.forEach {
             val oldY = it.posY
             val newY = oldY?.plus(it.speed!!)
@@ -300,6 +304,34 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
         //println("Number of obstacles: ${obstacleList.count()}")
         //println("Number of coins: ${coinsList.count()}")
+    }
+
+    private fun movePlayer() {
+        if (playerCurrentLane == 1 && player.posX != leftLaneX!!.toFloat()) {
+            player.posX -= player.speed
+            if (player.posX - leftLaneX!!.toFloat() < 10) {
+                player.posX = leftLaneX!!.toFloat()
+            }
+        } else if (playerCurrentLane == 2 && player.posX != middleLaneX!!.toFloat()) {
+            if (player.posX > middleLaneX!!.toFloat()) {
+                player.posX -= player.speed
+                if (player.posX - middleLaneX!!.toFloat() < 10) {
+                    player.posX = middleLaneX!!.toFloat()
+                }
+            } else if (player.posX < middleLaneX!!.toFloat()) {
+                player.posX += player.speed
+                if (player.posX - middleLaneX!!.toFloat() > 10) {
+                    player.posX = middleLaneX!!.toFloat()
+                }
+            }
+        } else if (playerCurrentLane == 3 && player.posX != rightLaneX!!.toFloat()) {
+            player.posX += player.speed
+            if (player.posX - rightLaneX!!.toFloat() > 10) {
+                player.posX = rightLaneX!!.toFloat()
+            }
+        }
+        println("POS - Player PosX ${player.posX}")
+        println("POS - left: $leftLaneX, middle: $middleLaneX, right: $rightLaneX")
     }
 
     fun spawnObstacle(){
@@ -372,7 +404,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                                 playerCurrentLane++
                                 // Update player's position gradually for smooth movement
 
-                                UpdatePlayerPos()
+                                //UpdatePlayerPos()
                                 isLaneSwitching = true
                             }
                         }
@@ -382,7 +414,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
                                 playerCurrentLane--
                                 // Update player's position gradually for smooth movement
 
-                                UpdatePlayerPos()
+                                //UpdatePlayerPos()
                                 isLaneSwitching = true
                             }
                         }
@@ -423,7 +455,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             }
         }
 
-        if(timeInterval>200L){
+        if(timeInterval>400L){
             timeInterval -= 100L
         }
         println("GAMESPEED: $gameSpeed. TIMEINTERVAL: $timeInterval")
