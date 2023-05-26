@@ -2,6 +2,8 @@ package com.example.assignmentc
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -83,6 +85,21 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Timer bool for starting and stopping the timer
     var timerStarted: Boolean = false
 
+    // Grass background variables
+    var grassBitmap: Bitmap? = null
+    var grassHeight: Int? = null
+    var grassWidth: Int? = null
+    var grassX: Float? = null
+    var grassBuffer: Int? = null
+
+    // Road background variables
+    var roadBitmap: Bitmap? = null
+    var roadHeight: Int? = null
+    var roadWidth: Int? = null
+    var roadX: Float? = null
+    var roadBuffer: Int? = null
+    var roadLane: Int? = null
+
     // Initializer that runs when the view starts
     init {
         // Initialize up objects
@@ -95,13 +112,29 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
+        // Initialize grass variables
+        grassBuffer = 980
+        val originalGrassBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.grass)
+        grassWidth = getScreenWidth()
+        grassHeight = getScreenHeight() + grassBuffer!!
+        grassBitmap = Bitmap.createScaledBitmap(originalGrassBitmap, grassWidth!!, grassHeight!!, false)
+        grassX = -grassBuffer!!.toFloat()
+
+        // Initialize road variables
+        roadBuffer = 1040
+        roadLane = leftLaneX!!/2
+        val originalRoadBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.road)
+        roadWidth = ((rightLaneX!! + getScreenWidth())/2) - roadLane!!
+        roadHeight = getScreenHeight() + roadBuffer!!
+        roadBitmap = Bitmap.createScaledBitmap(originalRoadBitmap, roadWidth!!, roadHeight!!, false)
+        roadX = -roadBuffer!!.toFloat()
 
         // Initialize speed related variables
-        gameSpeed = 10
-
-        initializeDatabase(context)
-
+        gameSpeed = 13
         speedCounter = 0
+
+        // Database
+        initializeDatabase(context)
 
         // Set default positions for objects and player.
         coins.setPos(startPositionX, objectRow!!.toFloat())
@@ -214,6 +247,10 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         super.draw(canvas)
         canvas?.drawColor(Color.GREEN)
 
+
+        canvas?.drawBitmap(grassBitmap!!, 0f, grassX!!, null)
+        canvas?.drawBitmap(roadBitmap!!, roadLane!!.toFloat(), roadX!!, null)
+
         // Draw obstacles
         obstacleList.forEach {
             obstacle.obstacleBitmap?.let { bitmap ->
@@ -249,8 +286,16 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     private suspend fun updateGame() {
         // Update position and check collision for each obstacle
 
-        // THIS NEEDS TO CHECK FOR CLOSENESS AS IT IS NOT SURE THAT IT WILL LAND 100% ON THE LANEX
         movePlayer()
+
+        grassX = grassX!! + gameSpeed!!
+        if(grassX!! >=0){
+            grassX = -grassBuffer!!.toFloat()
+        }
+        roadX = roadX!! + gameSpeed!!
+        if(roadX!! >=0){
+            roadX = -roadBuffer!!.toFloat()
+        }
 
         obstacleList.forEach {
             val oldY = it.posY
