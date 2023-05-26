@@ -177,7 +177,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         val distance = Math.sqrt((distanceX * distanceX + distanceY * distanceY).toDouble())
 
         // Check if the distance between the player and object is less than the sum of their radii
-        return distance < player.playerCollisionRadius + objectRadius
+        return distance < player.playerCollisionRadius + objectRadius && objectX == playerX
     }
 
     // A coroutine game loop that updates the game indefinitely while the game is running.
