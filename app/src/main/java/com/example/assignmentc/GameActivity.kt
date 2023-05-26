@@ -1,5 +1,6 @@
 package com.example.assignmentc
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -24,8 +25,9 @@ class GameActivity : AppCompatActivity(), GameView.GameListener {
 
     }
     override fun onCollisionDetected() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish() // Close the GameActivity
+        val resultIntent = Intent()
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+
     }
 }

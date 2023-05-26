@@ -93,8 +93,14 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         setRows()
         setStartPos()
 
+
         // Initialize speed related variables
         gameSpeed = 10
+
+        initializeDatabase(context)
+
+
+
         speedCounter = 0
 
         // Set default positions for objects and plauer.
