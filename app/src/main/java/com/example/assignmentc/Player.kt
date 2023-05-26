@@ -9,8 +9,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 
 class Player(private val context: Context){
-
-    var paint: Paint? = null
     var posX: Float = 0.0f
     var posY: Float = 0.0f
     var playerCollisionRadius: Float = 50f
@@ -22,9 +20,11 @@ class Player(private val context: Context){
     private var height: Int = 0
     init {
 
-        val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.rocket3)
-        width = originalBitmap.width // Desired width of the player image
-        height = originalBitmap.height // Desired height of the player image
+        val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.player_car)
+        //width = originalBitmap.width // Desired width of the player image
+        //height = originalBitmap.height // Desired height of the player image
+        width = 200
+        height = 400
         playerBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, false)
         Log.d("PlayerImage", "Image width: $width, height: $height")
     }

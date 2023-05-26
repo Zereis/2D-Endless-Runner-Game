@@ -426,7 +426,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     //Set the players and the obstacles rows (y) depending on screen size
     private fun setRows(){
-        playerRow = getScreenHeight()-300
+        playerRow = getScreenHeight()-400
         objectRow = -100 //This should be something like -100 to spawn above the screen and then fall down
     }
 
