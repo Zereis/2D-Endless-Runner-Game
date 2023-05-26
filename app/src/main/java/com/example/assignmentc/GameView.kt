@@ -2,6 +2,8 @@ package com.example.assignmentc
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -72,6 +74,8 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
     // Listener for when the player loses game
     var gameListener: GameListener? = null
 
+
+
     // Database variables
     private lateinit var highScoreDatabase: HighScoreDatabase
     private fun initializeDatabase(context: Context) {
@@ -98,8 +102,6 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         gameSpeed = 10
 
         initializeDatabase(context)
-
-
 
         speedCounter = 0
 
@@ -220,7 +222,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         }
 
         // Draw player
-        canvas?.drawCircle(player.posX, player.posY, player.playerCollisionRadius, player.paint!!)
+        //canvas?.drawCircle(player.posX, player.posY, player.playerCollisionRadius, player.paint!!)
+
+        player.playerBitmap?.let { bitmap ->
+            canvas?.drawBitmap(bitmap, player.posX - bitmap.width / 2, player.posY - bitmap.height / 2, null)
+        }
 
         // Draw text
         canvas?.drawText("Score!", 50f, 150f, textPaint)

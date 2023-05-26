@@ -1,9 +1,12 @@
 package com.example.assignmentc
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
-
+import android.content.res.Resources
+import android.graphics.BitmapFactory
+import android.util.Log
 
 class Player(private val context: Context){
 
@@ -12,35 +15,21 @@ class Player(private val context: Context){
     var posY: Float = 0.0f
     var playerCollisionRadius: Float = 50f
     var score: Int = 0
+    var playerBitmap: Bitmap? = null
+        private set // Make the playerBitmap property private to the outside
 
-
+    private var width: Int = 0
+    private var height: Int = 0
     init {
 
-        paint = Paint()
-        paint!!.isFilterBitmap = true
-        paint!!.isAntiAlias = true
-        paint!!.color = Color.WHITE
-
+        val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.rocket3)
+        width = originalBitmap.width // Desired width of the player image
+        height = originalBitmap.height // Desired height of the player image
+        playerBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, false)
+        Log.d("PlayerImage", "Image width: $width, height: $height")
     }
-
     fun setPos(X: Float, Y: Float){
         posX = X
         posY = Y
     }
-
-    fun update() {
-
-    }
-
-    fun moveLeft() {
-
-    }
-
-    fun moveRight() {
-
-    }
-
-
-
-
 }
