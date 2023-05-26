@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Random
 import android.os.CountDownTimer
+import android.media.MediaPlayer
 
 class GameView(context: Context) : View(context), CoroutineScope by MainScope() {
     // Objects
@@ -129,10 +130,11 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
         roadBitmap = Bitmap.createScaledBitmap(originalRoadBitmap, roadWidth!!, roadHeight!!, false)
         roadX = -roadBuffer!!.toFloat()
 
+
         // Initialize speed related variables
         gameSpeed = 13
         speedCounter = 0
-
+        
         // Database
         initializeDatabase(context)
 
@@ -159,7 +161,9 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
     // Listener for collider
     interface GameListener {
+
         fun onCollisionDetected()
+
     }
 
     // Timer that controls the spawn rate and score increasing.
@@ -304,12 +308,18 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.obstacleCollisionRadius!!))
             {
+
+                player.collisionPlaySound()
+                player.destroy()
+
+
                 obstaclesToRemove.add(it)
                 timerStarted = false
 
                 gameListener?.onCollisionDetected()
                 val highScore = HighScore(null,player.score)
                 highScoreDatabase.highScoreDao().insert(highScore)
+
             }
 
             if (it.posY!! >= getScreenHeight() + it.obstacleCollisionRadius!!) {
@@ -326,6 +336,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
             // player collide with coins
             if (checkCollision(player.posX, player.posY, it.posX!!, it.posY!!, it.coinCollisionRadius!!))
             {
+                player.collectPlaySound()
                 player.score+=15
                 coinsToRemove.add(it)
             }
@@ -451,6 +462,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
                                 //UpdatePlayerPos()
                                 isLaneSwitching = true
+                                player.switchingLanePlaySound()
                             }
                         }
                         "Left" -> {
@@ -461,6 +473,7 @@ class GameView(context: Context) : View(context), CoroutineScope by MainScope() 
 
                                 //UpdatePlayerPos()
                                 isLaneSwitching = true
+                                player.switchingLanePlaySound()
                             }
                         }
                     }

@@ -3,6 +3,7 @@ package com.example.assignmentc
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
@@ -13,6 +14,7 @@ class GameActivity : AppCompatActivity(), GameView.GameListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Create an instance of GameView
         gameView = GameView(context)
@@ -25,6 +27,7 @@ class GameActivity : AppCompatActivity(), GameView.GameListener {
 
     }
     override fun onCollisionDetected() {
+
         val resultIntent = Intent()
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
